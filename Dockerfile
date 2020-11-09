@@ -20,6 +20,8 @@ ENV SWAN_VER 3.32
 
 WORKDIR /opt/src
 
+COPY ./modules.conf /etc/modprobe.d/modules.conf
+
 RUN apt-get -yqq update \
     && DEBIAN_FRONTEND=noninteractive \
        apt-get -yqq --no-install-recommends install \
@@ -35,7 +37,7 @@ RUN apt-get -yqq update \
     && rm -f libreswan.tar.gz \
     && cd "libreswan-${SWAN_VER}" \
     && printf 'WERROR_CFLAGS = -w\nUSE_DNSSEC = false\nUSE_DH31 = false\n' > Makefile.inc.local \
-    && printf 'USE_NSS_AVA_COPY = true\nUSE_NSS_IPSEC_PROFILE = false\n' >> Makefile.inc.local \
+    && printf 'USE_NSS_AVA_COPY = true\nUSE_NSS_IPSEC_PROFILE = false\n' >> Makefile.inc.lodockcal \
     && printf 'USE_GLIBC_KERN_FLIP_HEADERS = true\nUSE_SYSTEMD_WATCHDOG = false\n' >> Makefile.inc.local \
     && printf 'USE_DH2 = true\n' >> Makefile.inc.local \
     && make -s base \
@@ -50,6 +52,8 @@ RUN apt-get -yqq update \
     && apt-get -y clean \
     && rm -rf /var/lib/apt/lists/* \
     && update-alternatives --set iptables /usr/sbin/iptables-legacy
+
+RUN mknod /dev/ppp c 108 0
 
 COPY ./run.sh /opt/src/run.sh
 RUN chmod 755 /opt/src/run.sh
